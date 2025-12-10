@@ -4,30 +4,111 @@
 @{
 }
 <h1 class="my-3">Aggiungi studente</h1>
-<button id="addStudent">Aggiungi Studente</button>
 
-<form method="post" asp-action="Index">
+<button class="btn btn-primary" id="addStudent">Aggiungi studente  </button>
 
-    <div class="mb-3">
-        <label for="name" class="form-label">Nome</label>
-        <input type="text" class="form-control" id="name" name="Name" maxlength="50" required>
+<div class="modal" id="createStudentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="createStudentModalBody">
+                <p>Modal body text goes here.</p>
+            </div>
+
+        </div>
     </div>
+</div>
 
-    <div class="mb-3">
-        <label for="cognome" class="form-label">Cognome</label>
-        <input type="text" class="form-control" id="cognome" name="Cognome" maxlength="50" required>
-    </div>
 
-    <div class="mb-3">
-        <label for="nascita" class="form-label">Data di nascita</label>
-        <input type="date" class="form-control" id="nascita" name="DataNascita" required>
-    </div>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Cognome</th>
+            <th scope="col">Nome</th>
+            <th scope="col">Data di nascita</th>
+            <th scope="col">Email</th>
+            <th scope="col">Modifica</th>
+            <th scope="col">Elimina</th>
+        </tr>
+    </thead>
+    <tbody id="studentsTableBody">
+    </tbody>
+</table>
 
-    <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" class="form-control" id="email" name="Email" required>
-    </div>
 
-    <button type="submit" class="btn btn-primary">Salva studente</button>
 
-</form>
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const addStudent = document.getElementById("addStudent");
+            if (!addStudent) return;
+
+            addStudent.addEventListener("click", async () => {
+                const res = await fetch("/Student/CreateForm", { method: "GET" });
+
+                if (!res.ok) {
+                    alert("Errore nel caricamento del modulo");
+                    return;
+                }
+
+                const data = await res.text();
+                if (!data) return;
+
+                const createStudentModalBody = document.getElementById("createStudentModalBody");
+                if (!createStudentModalBody) return;
+
+                createStudentModalBody.innerHTML = data;
+
+                const createStudentModalElement = document.getElementById("createStudentModal");
+                if (!createStudentModalElement) return;
+
+                const modal = bootstrap.Modal.getOrCreateInstance(createStudentModalElement);
+                modal.show();
+
+                 const createStudentForm= document.getElementById("createStudentForm")
+                 if(!createStudentForm){
+                     return;
+                 }
+                 createStudentForm.addEventListener("submit", async (e) => {
+                     e.preventDefault();
+
+                     const saveStudentBtn = document.getElementById("saveStudentBtn");
+                     const originalBtnText = saveStudentBtn.innerText;
+
+                           let dots = 0;
+                     const baseText = "Creazione Studente";
+
+                     const interval = setInterval(() => {
+                         dots = (dots + 1) % 4;
+                         saveStudentBtn.innerText = baseText + ".".repeat(dots);
+                     }, 500);
+
+                     const formData= new FormData(createStudentForm);
+
+                     const res= await fetch("/Student/Index", {
+                         method: "POST",
+
+                         body: formData
+                     });
+
+                     clearInterval(interval);
+
+                       saveStudentBtn.innerText = originalBtnText;
+              
+                     if (!res.ok){
+                         return;
+                     }
+                     alert("Studente creato con successo!");
+                     modal.hide();
+
+                             const tableHtml = await (await fetch("/Student/StudentsTable")).text();
+        document.getElementById("studentsTableBody").innerHTML = tableHtml;
+                 })
+            });
+
+        });
+    </script>
+}

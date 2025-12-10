@@ -32,5 +32,18 @@ namespace BE_U2_W2_D1.Controllers
             return RedirectToAction("Index");
 
         }
+        public IActionResult CreateForm()
+        {
+            return PartialView("_createStudent");
+        }
+
+        public async Task<IActionResult> StudentsTable()
+        {
+            var students = await _studentServices.GetAllStudents();
+            return PartialView("_StudentsTable", students);
+
+        }
     }
+
+
 }
