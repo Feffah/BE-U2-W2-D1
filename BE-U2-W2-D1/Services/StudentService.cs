@@ -1,9 +1,12 @@
-﻿using BE_U2_W2_D1.Models.Entities;
+﻿
+using BE_U2_W2_D1.Models.Entities;
+using BE_U2_W2_D1.Services;
 using Microsoft.EntityFrameworkCore;
-namespace BE_U2_W2_D1.Services
 
+
+namespace BE_U2_W2_D1.Services
 {
-    public class StudentServices
+    public class StudentServices : IStudentServices
     {
         private readonly StudentDbContext _context;
 
@@ -11,7 +14,9 @@ namespace BE_U2_W2_D1.Services
         {
             _context = context;
         }
-        //GETALL STUDENTS
+
+
+        //GET ALL STUDENTS
         public async Task<List<Student>> GetAllStudents()
         {
             return await _context.Students.ToListAsync();
@@ -29,6 +34,19 @@ namespace BE_U2_W2_D1.Services
             await _context.Students.AddAsync(student);
             return await _context.SaveChangesAsync() > 0;
 
+        }
+        //MODIFY
+        public async Task<bool> UpdateAsync(Student student)
+        {
+            _context.Students.Update(student);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        // DELETE
+        public async Task<bool> DeleteAsync(Student student)
+        {
+            _context.Students.Remove(student);
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model List<BE_U2_W2_D1.Models.Entities.Student>
 @{
 }
 <h1 class="my-3">Aggiungi studente</h1>
@@ -11,11 +9,10 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Modal title</h5>
+
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="createStudentModalBody">
-                <p>Modal body text goes here.</p>
             </div>
 
         </div>
@@ -23,7 +20,7 @@
 </div>
 
 
-<table class="table">
+<table class="table" id="studentsTableBody">
     <thead>
         <tr>
             <th scope="col">Cognome</th>
@@ -34,81 +31,96 @@
             <th scope="col">Elimina</th>
         </tr>
     </thead>
-    <tbody id="studentsTableBody">
+    <tbody>
+        @foreach (var student in Model)
+        {
+            <tr>
+
+                <td>@student.Cognome</td>
+                <td>@student.Name</td>
+                <td>@student.DataNascita</td>
+                <td>@student.Email</td>
+                <td>
+                    <a>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                        </svg>
+                    </a>
+                </td>
+                <td>
+                    <a>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                            <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
+                        </svg>
+                    </a>
+                </td>
+
+            </tr>
+        }
     </tbody>
 </table>
+
 
 
 
 @section Scripts {
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+
             const addStudent = document.getElementById("addStudent");
-            if (!addStudent) return;
 
             addStudent.addEventListener("click", async () => {
-                const res = await fetch("/Student/CreateForm", { method: "GET" });
 
-                if (!res.ok) {
-                    alert("Errore nel caricamento del modulo");
-                    return;
-                }
-
+                const res = await fetch("/Student/CreateForm");
                 const data = await res.text();
-                if (!data) return;
+                document.getElementById("createStudentModalBody").innerHTML = data;
 
-                const createStudentModalBody = document.getElementById("createStudentModalBody");
-                if (!createStudentModalBody) return;
-
-                createStudentModalBody.innerHTML = data;
-
-                const createStudentModalElement = document.getElementById("createStudentModal");
-                if (!createStudentModalElement) return;
-
-                const modal = bootstrap.Modal.getOrCreateInstance(createStudentModalElement);
+                const modalElement = document.getElementById("createStudentModal");
+                const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
                 modal.show();
 
-                 const createStudentForm= document.getElementById("createStudentForm")
-                 if(!createStudentForm){
-                     return;
-                 }
-                 createStudentForm.addEventListener("submit", async (e) => {
-                     e.preventDefault();
+                const createStudentForm = document.getElementById("createStudentForm");
 
-                     const saveStudentBtn = document.getElementById("saveStudentBtn");
-                     const originalBtnText = saveStudentBtn.innerText;
+                createStudentForm.addEventListener("submit", async (e) => {
+                    e.preventDefault();
 
-                           let dots = 0;
-                     const baseText = "Creazione Studente";
+                    const saveStudentBtn = document.getElementById("saveStudentBtn");
+                    const originalBtnText = saveStudentBtn.innerText;
 
-                     const interval = setInterval(() => {
-                         dots = (dots + 1) % 4;
-                         saveStudentBtn.innerText = baseText + ".".repeat(dots);
-                     }, 500);
+                    let dots = 0;
+                    const baseText = "Creazione studente";
 
-                     const formData= new FormData(createStudentForm);
+                    const interval = setInterval(() => {
+                        dots = (dots + 1) % 4;
+                        saveStudentBtn.innerText = baseText + ".".repeat(dots);
+                    }, 500);
 
-                     const res= await fetch("/Student/Index", {
-                         method: "POST",
+                    const formData = new FormData(createStudentForm);
 
-                         body: formData
-                     });
+                    const result = await fetch("/Student/Index", {
+                        method: "POST",
+                        body: formData
+                    });
 
-                     clearInterval(interval);
+                    clearInterval(interval);
+                    saveStudentBtn.innerText = "Salvataggio...";
 
-                       saveStudentBtn.innerText = originalBtnText;
-              
-                     if (!res.ok){
-                         return;
-                     }
-                     alert("Studente creato con successo!");
-                     modal.hide();
+                    if (!result.ok) {
+                        alert("Errore nel salvataggio");
+                        saveStudentBtn.innerText = originalBtnText;
+                        return;
+                    }
 
-                             const tableHtml = await (await fetch("/Student/StudentsTable")).text();
-        document.getElementById("studentsTableBody").innerHTML = tableHtml;
-                 })
+                    // alert("Studente creato con successo!");
+                    modal.hide();
+
+        //                     const tableHtml = await (await fetch("/Student/StudentsTable")).text();
+        // document.getElementById("studentsTableBody").innerHTML = tableHtml;
+                        loaction.reload();
+
+                });
             });
-
         });
     </script>
 }

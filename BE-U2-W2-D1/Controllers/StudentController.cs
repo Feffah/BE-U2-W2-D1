@@ -1,9 +1,12 @@
 ﻿using BE_U2_W2_D1.Models.Entities;
 using BE_U2_W2_D1.Services;
+using BE_U2_W2_D1.Models.Entities;
+using BE_U2_W2_D1.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BE_U2_W2_D1.Controllers
+namespace BackEnd_S6_L1.Controllers
 {
+
     public class StudentController : Controller
     {
         private readonly StudentServices _studentServices;
@@ -32,18 +35,13 @@ namespace BE_U2_W2_D1.Controllers
             return RedirectToAction("Index");
 
         }
+
         public IActionResult CreateForm()
         {
             return PartialView("_createStudent");
         }
 
-        public async Task<IActionResult> StudentsTable()
-        {
-            var students = await _studentServices.GetAllStudents();
-            return PartialView("_StudentsTable", students);
 
-        }
     }
-
 
 }
